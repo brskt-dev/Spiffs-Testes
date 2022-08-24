@@ -8,13 +8,31 @@ typedef struct struct_message
 } struct_message;
 
 File file;
-char mac_addr[18] = "58:BF:25:82:C7:88";
+String txt;
+time_t horaInicio, horaFinal;
+char mac_addr[18] = "19:ED:33:49:L3:BR";
+char date_addr[30] = "00/00/2000;01:28:45";
+
+char date_1[30] = "01:28:00";
+char date_2[30] = "01:48:00";
+double diff_t;
 struct_message myData;
+
+void calcDif()
+{
+  horaInicio = (time_t) atoll(date_1);
+  horaFinal = (time_t) atoll(date_2);
+
+  diff_t = difftime(horaFinal, horaInicio);
+}
 
 void setup() {
   Serial.begin(115200);
   
+  calcDif();
+
   stpcpy(myData.mac, mac_addr);
+  stpcpy(myData.date, date_addr);
 
   if(!SPIFFS.begin(true))
   {
@@ -31,15 +49,24 @@ void setup() {
   file.print(myData.mac);
   file.close();
 
+  file = SPIFFS.open("/testes.txt", FILE_APPEND);
+  file.print(myData.date);
+  file.close();
+
 }
 
 void loop() {
   file = SPIFFS.open("/testes.txt", FILE_READ);
-  
-  Serial.println("Conteudo do arquivo: ");
-  while(file.available()){
-    Serial.write(file.read());
-  }
+
+  Serial.print("Conteudo do arquivo: ");
+  while (file.available())
+    txt = file.readString();
+
   file.close();
-  
+  Serial.println(txt);
+
+  Serial.print("Diferença de tempo: ");
+  Serial.println(diff_t);
+  delay(3000);
+
 }
